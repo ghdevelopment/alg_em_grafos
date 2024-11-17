@@ -2,9 +2,9 @@ import os
 import networkx as nx
 
 def carregar_grafo_txt(arquivo):
-    G = nx.Graph()
+    G = nx.DiGraph()
     ponderado = False
-    orientado = False
+    orientado = True
 
     try:
         with open(arquivo, 'r') as f:
@@ -92,14 +92,8 @@ def gerar_elementos_cytoscape(G):
     # Adicionar os nós
     for node in G.nodes():
         elements.append({
-            'selector': f'node[id="{node}"]',
             'data': {'id': str(node), 'label': str(node)},
-            'classes': 'node',
-            'style': {
-                'background-color': '#A1C057',
-                'border-width': '2.8px',
-                'border-color': '#252525'
-            }
+            'classes': 'node'  # Classe para aplicar estilos gerais do stylesheet
         })
 
     # Adicionar as arestas
@@ -107,25 +101,23 @@ def gerar_elementos_cytoscape(G):
         source, target, data = edge
         label = data.get('weight', '')
 
+        # Defina a forma da seta dependendo se o grafo é direcionado ou não
+        target_arrow_shape = 'triangle' if G.is_directed() else 'none'
+
         elements.append({
-            'selector': f'edge[source="{source}"][target="{target}"]',
             'data': {
                 'source': str(source),
                 'target': str(target),
                 'label': str(label) if label else ''
             },
-            'classes': 'edge',
+            'classes': 'edge',  # Classe para aplicar estilos gerais do stylesheet
             'style': {
-                'width': '2.8px',
-                'target-arrow-color': '#252525',
-                'line-color': '#252525',
-                'target-arrow-shape': 'triangle' if nx.is_directed(G) else 'none',
-                'arrow-scale': 1.3,
-                'label': str(label) if label else '',
-                'text-background-color': '#ffffff',
-                'text-background-opacity': 0.5,
-                'text-background-shape': 'round-rectangle',
+                'target-arrow-shape': target_arrow_shape, # Define a seta condicionalmente
+                'arrow-scale': 1.2,  
             }
         })
 
     return elements
+
+
+
